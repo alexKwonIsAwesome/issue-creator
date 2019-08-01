@@ -1,27 +1,29 @@
-import React, { useState } from 'react';
+import React, { Component } from 'react';
 import styled from 'styled-components';
 import Grid from '@material-ui/core/Grid';
 
 import GithubAPI from './githubApi';
 
-const checklistPlaceholder = `e.g.)
-1. [] 항목 1
-2. [] 항목 2`;
+class Main extends Component {
+  constructor(props) {
+    super(props);
+    const { localStorage } = window;
+    const token = localStorage.getItem('token');
+    const userId = localStorage.getItem('userId');
 
-const Main = props => {
-  const [state, setState] = useState({
-    token: '',
-    userId: '',
-    day: '',
-    checklist: ''
-  });
+    this.state = {
+      token,
+      userId,
+      day: '',
+      checklist: '',
+      isLoading: false
+    };
+  }
 
-  const [isLoading, setIsLoading] = useState(false);
-
-  const handleFormSubmit = async e => {
+  handleFormSubmit = async e => {
     try {
       e.preventDefault();
-      const { token, userId, day, checklist } = state;
+      const { token, userId, day, checklist } = this.state;
 
       if (!token) {
         alert('토큰을 입력해 주세요.');
@@ -43,96 +45,105 @@ const Main = props => {
         throw '';
       }
 
-      setIsLoading(true);
+      this.setState({
+        ...this.state,
+        isLoading: true
+      });
       const github = new GithubAPI(token, userId, day);
       await github.createIssues(checklist);
-      props.history.push('/success');
+      localStorage.setItem('token', this.state.token);
+      localStorage.setItem('userId', this.state.userId);
+      this.props.history.push('/success');
     } catch (error) {
       console.error(error);
       alert('이슈 생성에 실패했습니다 ㅠ');
-      setIsLoading(false);
+      this.setState({
+        ...this.state,
+        isLoading: true
+      });
     }
   };
 
-  const handleChange = e => {
+  handleChange = e => {
     const { name, value } = e.target;
-    setState({
-      ...state,
+    this.setState({
+      ...this.state,
       [name]: value
     });
   };
 
-  return (
-    <Wrapper>
-      <Container>
-        <Grid container spacing={2}>
-          <Grid item xs={0} md={3} />
-          <Grid item xs={12} md={6}>
-            <Content>
-              <Form onSubmit={handleFormSubmit}>
-                <Title>
-                  <span>👑</span>
-                  이슈 생성기
-                </Title>
+  render() {
+    const { handleChange, handleFormSubmit } = this;
+    const { userId, token, isLoading } = this.state;
+    return (
+      <Wrapper>
+        <Container>
+          <Grid container spacing={2}>
+            <Grid item xs={0} md={3} />
+            <Grid item xs={12} md={6}>
+              <Content>
+                <Form onSubmit={handleFormSubmit}>
+                  <Title>
+                    <span>👑</span>
+                    이슈 생성기
+                  </Title>
 
-                <Item>
-                  <label>
-                    토큰
-                    <input
-                      type="text"
-                      name="token"
-                      onChange={handleChange}
-                      placeholder="e.g.) bc5fb251e649cf21aa22f03a0894a94cfde4923"
-                    />
-                  </label>
-                </Item>
-                <Item>
-                  <label>
-                    Github 아이디
-                    <input
-                      type="text"
-                      name="userId"
-                      onChange={handleChange}
-                      placeholder="e.g.) myAwesomeGithubId"
-                    />
-                  </label>
-                </Item>
-                <Item>
-                  <label>
-                    미션 day
-                    <input
-                      type="text"
-                      name="day"
-                      onChange={handleChange}
-                      placeholder="e.g.) 12"
-                    />
-                  </label>
-                </Item>
-                <Item>
-                  <label>
-                    Checklist(마크다운형식)
-                    <textarea
-                      type="text"
-                      name="checklist"
-                      placeholder={checklistPlaceholder}
-                      onChange={handleChange}
-                    />
-                  </label>
-                </Item>
-                <Submit
-                  type="submit"
-                  disabled={isLoading}
-                  value={isLoading ? '생성 중...' : '생성하기'}
-                />
-              </Form>
-            </Content>
+                  <Item>
+                    <label>
+                      토큰
+                      <input
+                        type="text"
+                        name="token"
+                        value={token ? token : ''}
+                        onChange={handleChange}
+                        placeholder="e.g.) bc5fb251e649cf21aa22f03a0894a94cfde4923"
+                      />
+                    </label>
+                  </Item>
+                  <Item>
+                    <label>
+                      Github 아이디
+                      <input
+                        type="text"
+                        name="userId"
+                        value={userId ? userId : ''}
+                        onChange={handleChange}
+                        placeholder="e.g.) myAwesomeGithubId"
+                      />
+                    </label>
+                  </Item>
+                  <Item>
+                    <label>
+                      미션 day
+                      <input type="text" name="day" onChange={handleChange} placeholder="e.g.) 12" />
+                    </label>
+                  </Item>
+                  <Item>
+                    <label>
+                      Checklist(마크다운형식)
+                      <textarea
+                        type="text"
+                        name="checklist"
+                        onChange={handleChange}
+                        placeholder={checklistPlaceholder}
+                      />
+                    </label>
+                  </Item>
+                  <Submit type="submit" disabled={isLoading} value={isLoading ? '생성 중...' : '생성하기'} />
+                </Form>
+              </Content>
+            </Grid>
+            <Grid item xs={0} md={3} />
           </Grid>
-          <Grid item xs={0} md={3} />
-        </Grid>
-      </Container>
-    </Wrapper>
-  );
-};
+        </Container>
+      </Wrapper>
+    );
+  }
+}
+
+const checklistPlaceholder = `e.g.)
+1. [] 항목 1
+2. [] 항목 2`;
 
 const Wrapper = styled.div`
   height: 100%;
