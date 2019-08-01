@@ -4,6 +4,10 @@ import Grid from '@material-ui/core/Grid';
 
 import GithubAPI from './githubApi';
 
+const checklistPlaceholder = `e.g.)
+1. [] 항목 1
+2. [] 항목 2`;
+
 const Main = props => {
   const [state, setState] = useState({
     token: '',
@@ -45,6 +49,7 @@ const Main = props => {
       props.history.push('/success');
     } catch (error) {
       console.error(error);
+      alert('이슈 생성에 실패했습니다 ㅠ');
       setIsLoading(false);
     }
   };
@@ -73,19 +78,34 @@ const Main = props => {
                 <Item>
                   <label>
                     토큰
-                    <input type="text" name="token" onChange={handleChange} />
+                    <input
+                      type="text"
+                      name="token"
+                      onChange={handleChange}
+                      placeholder="e.g.) bc5fb251e649cf21aa22f03a0894a94cfde4923"
+                    />
                   </label>
                 </Item>
                 <Item>
                   <label>
                     Github 아이디
-                    <input type="text" name="userId" onChange={handleChange} />
+                    <input
+                      type="text"
+                      name="userId"
+                      onChange={handleChange}
+                      placeholder="e.g.) myAwesomeGithubId"
+                    />
                   </label>
                 </Item>
                 <Item>
                   <label>
                     미션 day
-                    <input type="text" name="day" onChange={handleChange} />
+                    <input
+                      type="text"
+                      name="day"
+                      onChange={handleChange}
+                      placeholder="e.g.) 12"
+                    />
                   </label>
                 </Item>
                 <Item>
@@ -94,6 +114,7 @@ const Main = props => {
                     <textarea
                       type="text"
                       name="checklist"
+                      placeholder={checklistPlaceholder}
                       onChange={handleChange}
                     />
                   </label>
