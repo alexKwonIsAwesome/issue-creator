@@ -21,33 +21,29 @@ class Main extends Component {
   }
 
   handleFormSubmit = async e => {
+    e.preventDefault();
+    const { token, userId, day, checklist } = this.state;
+    const validateVar = [token, userId, day, checklist];
+    const alertMessage = [
+      '토큰을 입력해주세요',
+      'Github 아이디를 입력해 주세요.',
+      '미션 day를 입력해 주세요.',
+      'Checklist를 입력해 주세요.'
+    ];
+
+    const len = validateVar.length;
+    for (let i = 0; i < len; i++) {
+      if (!validateVar[i]) {
+        alert(alertMessage[i]);
+        return;
+      }
+    }
+
+    this.setState({
+      isLoading: true
+    });
+
     try {
-      e.preventDefault();
-      const { token, userId, day, checklist } = this.state;
-
-      if (!token) {
-        alert('토큰을 입력해 주세요.');
-        throw '';
-      }
-
-      if (!userId) {
-        alert('Github 아이디를 입력해 주세요.');
-        throw '';
-      }
-
-      if (!day) {
-        alert('미션 day를 입력해 주세요.');
-        throw '';
-      }
-
-      if (!checklist) {
-        alert('Checklist를 입력해 주세요.');
-        throw '';
-      }
-
-      this.setState({
-        isLoading: true
-      });
       const github = new GithubAPI(token, userId, day);
       await github.createIssues(checklist);
       localStorage.setItem('token', this.state.token);
@@ -126,7 +122,7 @@ class Main extends Component {
                       />
                     </label>
                   </Item>
-                  <Submit type="submit" disabled={isLoading} value={isLoading ? '생성 중...' : '생성하기'} />
+                  <Submit type="submit" disabled={false} value={isLoading ? '생성 중...' : '생성하기'} />
                 </Form>
               </Content>
             </Grid>
