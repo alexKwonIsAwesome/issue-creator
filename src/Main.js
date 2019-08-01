@@ -16,28 +16,14 @@ class Main extends Component {
       userId: storageUserId,
       day: '',
       checklist: '',
-      isLoading: false
+      isLoading: false,
+      isValidInput: false
     };
   }
 
   handleFormSubmit = async e => {
     e.preventDefault();
     const { token, userId, day, checklist } = this.state;
-    const validateVar = [token, userId, day, checklist];
-    const alertMessage = [
-      '토큰을 입력해주세요',
-      'Github 아이디를 입력해 주세요.',
-      '미션 day를 입력해 주세요.',
-      'Checklist를 입력해 주세요.'
-    ];
-
-    const len = validateVar.length;
-    for (let i = 0; i < len; i++) {
-      if (!validateVar[i]) {
-        alert(alertMessage[i]);
-        return;
-      }
-    }
 
     this.setState({
       isLoading: true
@@ -60,14 +46,39 @@ class Main extends Component {
 
   handleChange = e => {
     const { name, value } = e.target;
-    this.setState({
-      [name]: value
-    });
+    this.setState(
+      {
+        [name]: value
+      },
+      () => {
+        value ? this.validateInput() : this.setState({ isValidInput: false });
+      }
+    );
+  };
+
+  validateInput = () => {
+    const { token, userId, day, checklist } = this.state;
+    const validateVar = [token, userId, day, checklist];
+
+    const len = validateVar.length;
+    for (let i = 0; i < len; i++) {
+      if (!validateVar[i]) {
+        this.setState({ isValidInput: false });
+        return;
+      }
+    }
+    this.setState({ isValidInput: true });
   };
 
   render() {
     const { handleChange, handleFormSubmit } = this;
-    const { userId, token, isLoading } = this.state;
+    const { userId, token, isLoading, isValidInput } = this.state;
+    let submitBtn;
+    if (isValidInput) {
+      submitBtn = <Submit type="submit" disabled={isLoading} value={isLoading ? '생성 중...' : '생성하기'} />;
+    } else {
+      submitBtn = <DisableBtn type="text"> 입력값을 전부 입력해주세요 </DisableBtn>;
+    }
     return (
       <Wrapper>
         <Container>
@@ -80,7 +91,6 @@ class Main extends Component {
                     <span>👑</span>
                     이슈 생성기
                   </Title>
-
                   <Item>
                     <label>
                       토큰
@@ -122,7 +132,7 @@ class Main extends Component {
                       />
                     </label>
                   </Item>
-                  <Submit type="submit" disabled={false} value={isLoading ? '생성 중...' : '생성하기'} />
+                  {submitBtn}
                 </Form>
               </Content>
             </Grid>
@@ -218,6 +228,21 @@ const Submit = styled.input`
   display: block;
   margin: 0 auto;
   cursor: pointer;
+`;
+
+const DisableBtn = styled.text`
+  height: 50px;
+  width: 300px;
+  text-align: center;
+  color: black;
+  background: none;
+  line-height: 50px;
+  border: none;
+  outline: none;
+  font-size: 18px;
+  font-weight: 700;
+  display: block;
+  margin: 0 auto;
 `;
 
 export default Main;
