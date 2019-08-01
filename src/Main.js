@@ -101,7 +101,7 @@ const Main = props => {
                 <Submit
                   type="submit"
                   disabled={isLoading}
-                  value={isLoading ? '로딩 중...' : '생성하기'}
+                  value={isLoading ? '생성 중...' : '생성하기'}
                 />
               </Form>
             </Content>
