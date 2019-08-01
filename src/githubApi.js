@@ -1,10 +1,4 @@
-const axios = require('axios');
-// const token = '토큰입력하세요';
-// const userId = '아이디입력하세요. (이메일아님..)';
-// const day = 6; // day입력하세요.. 숫자
-// const checklist = `1. [ ] init 명령으로 local 영역에 저장소 생성
-// 2. [ ] status 명령으로 저장소 목록 확인
-// 3. [ ] checkout 명령으로 저장소 선택`;
+import axios from 'axios';
 
 class GithubAPI {
   constructor(token, userId, day) {
@@ -56,6 +50,4 @@ class GithubAPI {
   }
 }
 
-module.exports = GithubAPI;
-// const github = new GithubAPI(token, userId, day);
-// github.createIssues(checklist);
+export default GithubAPI;
