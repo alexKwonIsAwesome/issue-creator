@@ -8,8 +8,8 @@ class Main extends Component {
   constructor(props) {
     super(props);
     const { localStorage } = window;
-    const token = localStorage.getItem('token');
-    const userId = localStorage.getItem('userId');
+    const token = localStorage.getItem('token') || '';
+    const userId = localStorage.getItem('userId') || '';
 
     this.state = {
       token,
@@ -46,7 +46,6 @@ class Main extends Component {
       }
 
       this.setState({
-        ...this.state,
         isLoading: true
       });
       const github = new GithubAPI(token, userId, day);
@@ -58,8 +57,7 @@ class Main extends Component {
       console.error(error);
       alert('이슈 생성에 실패했습니다 ㅠ');
       this.setState({
-        ...this.state,
-        isLoading: true
+        isLoading: false
       });
     }
   };
@@ -67,7 +65,6 @@ class Main extends Component {
   handleChange = e => {
     const { name, value } = e.target;
     this.setState({
-      ...this.state,
       [name]: value
     });
   };
@@ -94,7 +91,7 @@ class Main extends Component {
                       <input
                         type="text"
                         name="token"
-                        value={token ? token : ''}
+                        value={token}
                         onChange={handleChange}
                         placeholder="e.g.) bc5fb251e649cf21aa22f03a0894a94cfde4923"
                       />
@@ -106,7 +103,7 @@ class Main extends Component {
                       <input
                         type="text"
                         name="userId"
-                        value={userId ? userId : ''}
+                        value={userId}
                         onChange={handleChange}
                         placeholder="e.g.) myAwesomeGithubId"
                       />
