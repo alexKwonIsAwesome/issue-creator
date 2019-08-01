@@ -8,12 +8,12 @@ class Main extends Component {
   constructor(props) {
     super(props);
     const { localStorage } = window;
-    const token = localStorage.getItem('token') || '';
-    const userId = localStorage.getItem('userId') || '';
+    const storageToken = localStorage.getItem('token') || '';
+    const storageUserId = localStorage.getItem('userId') || '';
 
     this.state = {
-      token,
-      userId,
+      token: storageToken,
+      userId: storageUserId,
       day: '',
       checklist: '',
       isLoading: false
