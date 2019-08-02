@@ -1,5 +1,4 @@
 import axios from 'axios';
-
 class GithubAPI {
   constructor(token, userId, day) {
     this.github = axios.create({
@@ -21,9 +20,11 @@ class GithubAPI {
   async createIssues(str) {
     const strArr = this._preProcessing(str);
     const dataArr = this._createJsonForm(strArr);
+    await this._isExistRepo();
     await this._hasIssue();
     await this._createIssues(dataArr);
   }
+
   _preProcessing(str) {
     str = str.trim();
     const strArr = str
@@ -32,6 +33,7 @@ class GithubAPI {
       .map(e => e.trim());
     return strArr;
   }
+
   _createJsonForm(titles) {
     const arr = [];
     for (const title of titles) {
@@ -40,6 +42,7 @@ class GithubAPI {
     }
     return arr;
   }
+
   async _hasIssue() {
     const result = await this.github.get('');
     const hasIssues = result.data.has_issues;
@@ -49,6 +52,7 @@ class GithubAPI {
       console.log('update has_issue : true');
     }
   }
+
   async _createIssues(datas) {
     console.log('request create issue');
     for (const data of datas) {
@@ -60,7 +64,7 @@ class GithubAPI {
   }
 
   /**
-   * @returns {String} String Array
+   * @returns {Array} String Array
    */
   async getCheckList() {
     const { githubConnect, _preProcessing, _findCheckList } = this;
@@ -92,6 +96,24 @@ class GithubAPI {
     }
 
     return checkListArr.join('\n');
+  }
+
+  async _fork() {
+    const { githubConnect } = this;
+    await githubConnect.post('/forks');
+  }
+
+  async _isExistRepo() {
+    const { github } = this;
+
+    console.log('레파지토리 있는지 확인..');
+    try {
+      await github.get('');
+    } catch (e) {
+      console.log('레파지토리가 없습니다.. fork요청중...');
+      await this._fork();
+      console.log('fork 성공');
+    }
   }
 }
 
