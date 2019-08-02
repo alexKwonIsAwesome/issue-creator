@@ -1,12 +1,21 @@
 import axios from 'axios';
 
+const axios = require('axios');
+
 class GithubAPI {
   constructor(token, userId, day) {
     this.github = axios.create({
       baseURL: `https://api.github.com/repos/${userId}/day${day}-challenge`,
       headers: {
         Authorization: `token ${token}`,
-        Accept: 'application/vnd.github.symmetra-preview+json'
+        Accept: 'application/vnd.github.symmetra-preview+json; charset=utf-8'
+      }
+    });
+    this.githubConnect = axios.create({
+      baseURL: `https://api.github.com/repos/connect-foundation/day${day}-challenge`,
+      headers: {
+        Authorization: `token ${token}`,
+        Accept: 'application/vnd.github.symmetra-preview+json; charset=utf-8'
       }
     });
   }
@@ -19,7 +28,10 @@ class GithubAPI {
   }
   _preProcessing(str) {
     str = str.trim();
-    const strArr = str.split('\n').map(e => e.trim());
+    const strArr = str
+      .split(/\r?\n/)
+      .filter(e => e)
+      .map(e => e.trim());
     return strArr;
   }
   _createJsonForm(titles) {
@@ -47,6 +59,41 @@ class GithubAPI {
       console.log(`생성시간 : ${created_at}, 제목 : ${title}`);
     }
     console.log('finished create issue');
+  }
+
+  /**
+   * @returns {String} String Array
+   */
+  async getCheckList() {
+    const { githubConnect, _preProcessing, _findCheckList } = this;
+    const readme = await githubConnect.get('/readme');
+    const content = readme.data.content;
+    const encodedContent = Buffer.from(content, 'base64').toString('utf8');
+    const contentArr = _preProcessing(encodedContent);
+    return _findCheckList(contentArr);
+  }
+
+  _findCheckList(contentArr) {
+    const len = contentArr.length;
+
+    const checkListArr = [];
+    let checkPointIdx = 0;
+    for (let i = len - 1; 0 <= i; i--) {
+      if (contentArr[i].includes('체크포인트') || contentArr[i].includes('체크 포인트')) {
+        checkPointIdx = i;
+        break;
+      }
+    }
+
+    for (let i = checkPointIdx + 2; i < len; i++) {
+      const expectedNumber = Number(contentArr[i][0]);
+      if (!Number.isInteger(expectedNumber)) {
+        break;
+      }
+      checkListArr.push(contentArr[i]);
+    }
+
+    return checkListArr.join('\n');
   }
 }
 
