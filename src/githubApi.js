@@ -1,7 +1,5 @@
 import axios from 'axios';
 
-const axios = require('axios');
-
 class GithubAPI {
   constructor(token, userId, day) {
     this.github = axios.create({

@@ -44,6 +44,38 @@ class Main extends Component {
     }
   };
 
+  handleCheckListLoad = async e => {
+    e.preventDefault();
+    const { token, userId, day } = this.state;
+    const validateVar = [token, userId, day];
+    const message = ['토큰을 입력해주세요.', '아이디를 입력해주세요.', '날짜를 입력해주세요'];
+    const len = validateVar.length;
+    for (let i = 0; i < len; i++) {
+      if (!validateVar[i]) {
+        alert(message[i]);
+        return;
+      }
+    }
+
+    if (!Number.isInteger(Number(day))) {
+      alert('day는 숫자만 입력해주세요');
+      return;
+    }
+
+    try {
+      const github = new GithubAPI(token, userId, day);
+      const data = await github.getCheckList();
+      if (data === '') {
+        alert(`day${day} readme는 아직 업데이트 되지 않았습니다.`);
+        return;
+      }
+      this.setState({ checklist: data, isValidInput: true });
+    } catch (error) {
+      console.error(error);
+      alert('체크리스트 가져오는데 실패했습니다.');
+    }
+  };
+
   handleChange = e => {
     const { name, value } = e.target;
     this.setState(
@@ -71,13 +103,13 @@ class Main extends Component {
   };
 
   render() {
-    const { handleChange, handleFormSubmit } = this;
-    const { userId, token, isLoading, isValidInput } = this.state;
+    const { handleChange, handleFormSubmit, handleCheckListLoad } = this;
+    const { userId, token, isLoading, isValidInput, checklist } = this.state;
     let submitBtn;
     if (isValidInput) {
       submitBtn = <Submit type="submit" disabled={isLoading} value={isLoading ? '생성 중...' : '생성하기'} />;
     } else {
-      submitBtn = <DisableBtn type="text"> 입력값을 전부 입력해주세요 </DisableBtn>;
+      submitBtn = <CustomText> 입력값을 전부 입력해주세요 </CustomText>;
     }
     return (
       <Wrapper>
@@ -127,10 +159,12 @@ class Main extends Component {
                       <textarea
                         type="text"
                         name="checklist"
+                        value={checklist}
                         onChange={handleChange}
                         placeholder={checklistPlaceholder}
                       />
                     </label>
+                    <button onClick={handleCheckListLoad}>체크리스트 가져오기</button>
                   </Item>
                   {submitBtn}
                 </Form>
@@ -181,6 +215,24 @@ const Title = styled.div`
 
 const Item = styled.div`
   margin-bottom: 20px;
+  position: relative;
+
+  button {
+    position: absolute;
+    top: -10px;
+    right: 0px;
+    width: 180px;
+    background: #656aef;
+    line-height: 30px;
+    border-radius: 5px;
+    border: none;
+    color: white;
+    font-size: 18px;
+    font-weight: 700;
+    display: block;
+    margin: 0 auto;
+    cursor: pointer;
+  }
 
   label {
     font-size: 16px;
@@ -230,7 +282,7 @@ const Submit = styled.input`
   cursor: pointer;
 `;
 
-const DisableBtn = styled.text`
+const CustomText = styled.text`
   height: 50px;
   width: 300px;
   text-align: center;
