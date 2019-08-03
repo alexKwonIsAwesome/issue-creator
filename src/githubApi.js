@@ -108,7 +108,8 @@ class GithubAPI {
 
     console.log('레파지토리 있는지 확인..');
     try {
-      await github.get('');
+      await github.head('');
+      console.log('레파지토리가 있습니다.');
     } catch (e) {
       console.log('레파지토리가 없습니다.. fork요청중...');
       await this._fork();
