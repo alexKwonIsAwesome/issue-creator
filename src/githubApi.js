@@ -20,7 +20,7 @@ class GithubAPI {
   async createIssues(str) {
     const strArr = this._preProcessing(str);
     const dataArr = this._createJsonForm(strArr);
-    await this._isExistRepo();
+    await this._findOrCreate();
     await this._hasIssue();
     await this._createIssues(dataArr);
   }
@@ -103,7 +103,7 @@ class GithubAPI {
     await githubConnect.post('/forks');
   }
 
-  async _isExistRepo() {
+  async _findOrCreate() {
     const { github } = this;
 
     console.log('레파지토리 있는지 확인..');
